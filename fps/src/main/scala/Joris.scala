@@ -59,6 +59,16 @@ sealed trait List[+A]:
           case Cons(h,t) => Cons(f(h,bh),t.zipWith(bt)(f))
         }
     }
+  def hasSubsequence[B](sub: List[B]): Boolean =
+    sub match{
+      case Nil => true
+      case Cons(sh,st) => this match{
+      case Nil => false
+      case Cons(h,t) if(h==sh) && t.hasSubsequence(st) => true
+      case Cons(h,t) => t.hasSubsequence(sub)
+    }}
+
+
   
 
 case object Nil extends List[Nothing]
@@ -124,10 +134,45 @@ def foldRight[A, B](as: List[A], z: B)(f: (A, B) => B) : B =
 def length [A] (as: List[A]):Int=
   foldRight(as,0)((_,y:Int) => y+1)
 
+
+sealed trait Tree[+A]:
+  def size: Int =
+    this match{
+      case Leaf(x) => 1
+      case Branch(l,r) => 1+ r.size + l.size 
+    }
+  def maxi: Int =
+    this.asInstanceOf[Tree[Int]] match{
+      case Leaf(x) => x
+      case Branch(l,r) => l.maxi.max(r.maxi)
+    }
+  def depth: Int =
+    this.recdept(0)
+
+  def recdept(d:Int):Int =
+    this match{
+      case Leaf(x) => d + 1
+      case Branch(l,r) => l.recdept(d+1).max(r.recdept(d+1))
+    }
+
+  def map[B](f: A => B): Tree[B]=
+    this match{
+      case Leaf(x) => Leaf(f(x))
+      case Branch(l,r) => Branch(l.map(f),r.map(f))
+    }
+ 
+case class Leaf[A](value:A) extends Tree[A]
+case class Branch[A](left: Tree[A], right: Tree[A]) extends Tree[A]
+val tree = Branch(Branch(Leaf(1),Branch(Leaf(2),Branch(Leaf(3),Leaf(4)))),Leaf(5))
+
+
+
 object Main extends App:
   val list1 = List(4.0,.5,.6)
-  val list2 = List(1,2,3)
+  val list2 = List(1,2,1,2,3)
   val list3 = List(7,8,9)
   val comlist = List(list1,list2,list3)
   println(list1.flatMap(i =>if(i>2) List(i) else Nil))
   println(list2.zipWith(list3)(_+_))
+  println(list2.hasSubsequence(List(2,3)))
+  println(tree.map(_+1))
