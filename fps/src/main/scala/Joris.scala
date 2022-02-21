@@ -64,13 +64,20 @@ sealed trait List[+A]:
       case Nil => true
       case Cons(sh,st) => this match{
       case Nil => false
-      case Cons(h,t) if(h==sh) && t.hasSubsequence(st) => true
+      case Cons(h,t) if(h==sh) && t.hasStrictSubsequence(st) => true
       case Cons(h,t) => t.hasSubsequence(sub)
     }}
-
-
   
-
+  def hasStrictSubsequence[B](sub: List[B]): Boolean =
+    sub match{
+      case Nil => true
+      case Cons(sh,st) => this match{
+        case Nil=> false
+        case Cons(h,t) if(h==sh) && t.hasStrictSubsequence(st) => true
+        case Cons(_,_) => false
+      }
+    }
+    
 case object Nil extends List[Nothing]
 case class Cons[+A](head: A, tail: List[A]) extends List[A]
 
@@ -160,6 +167,12 @@ sealed trait Tree[+A]:
       case Leaf(x) => Leaf(f(x))
       case Branch(l,r) => Branch(l.map(f),r.map(f))
     }
+  
+  def fold[B](b:A => B)(f:(B,B) => B): B =
+    this match{
+      case Leaf(x) => b(x)
+      case Branch(l,r) => f(l.fold(b)(f),r.fold(b)(f))
+    }
  
 case class Leaf[A](value:A) extends Tree[A]
 case class Branch[A](left: Tree[A], right: Tree[A]) extends Tree[A]
@@ -175,4 +188,4 @@ object Main extends App:
   println(list1.flatMap(i =>if(i>2) List(i) else Nil))
   println(list2.zipWith(list3)(_+_))
   println(list2.hasSubsequence(List(2,3)))
-  println(tree.map(_+1))
+  println(tree.fold(x=>x)((a,b)=> a.max(b)))
