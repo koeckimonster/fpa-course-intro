@@ -1,5 +1,6 @@
 package fps
 package joris
+package h3
 
 import cats.instances.set
 import scala.{List => sList}

@@ -15,6 +15,9 @@ lazy val cats: Seq[ModuleID] =
 lazy val test: Seq[ModuleID] =
   Seq(scalaTest, scalaCheck).map(_ % Test)
 
+lazy val doobleModule: Seq[ModuleID] =
+  Seq(doodle)
+
 lazy val root: Project =
   (project in file("."))
     .aggregate(fpa, fps)
@@ -33,5 +36,5 @@ lazy val fps: Project =
     .settings(
       scalaVersion := "3.1.1",
       name := "fps-course",
-      libraryDependencies ++= cats ++ test
+      libraryDependencies ++= cats ++ test ++ doobleModule
     )
